@@ -1,0 +1,656 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Mordec - Gestão Financeira Inteligente</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    * { margin:0; padding:0; box-sizing:border-box; }
+    html, body { height:100%; overflow:hidden; }
+    
+    :root {
+      --amarelo: #F6E7A8;
+      --lilas-suave: #C9B4E6;
+      --bege: #D9CFC6;
+      --lilas-prof: #8E7BB6;
+      --off-white: #FBF5EC;
+      --bg-dark: #0A0E14;
+      --surface: #1A1F2E;
+      --text-light: #E8EAED;
+      --text-dim: #B0B4BA;
+      --border: rgba(246,231,168,.1);
+    }
+    
+    body {
+      background: var(--bg-dark);
+      color: var(--text-light);
+      font-family: 'Space Grotesk', sans-serif;
+      line-height: 1.6;
+      font-weight: 400;
+    }
+    
+    .app { display: flex; height: 100vh; }
+    
+    /* SIDEBAR */
+    .sidebar {
+      width: 280px;
+      background: rgba(26,31,46,0.8);
+      backdrop-filter: blur(10px);
+      border-right: 1px solid var(--border);
+      padding: 40px 24px;
+      display: flex;
+      flex-direction: column;
+      gap: 48px;
+      overflow-y: auto;
+    }
+    
+    .logo {
+      font-size: 20px;
+      font-weight: 700;
+      letter-spacing: -0.5px;
+      color: var(--amarelo);
+      text-transform: uppercase;
+      tracking: -1px;
+    }
+    
+    .nav { display: flex; flex-direction: column; gap: 12px; flex: 1; }
+    
+    .nav-item {
+      padding: 12px 16px;
+      font-size: 13px;
+      color: var(--text-dim);
+      cursor: pointer;
+      transition: all 0.3s ease;
+      border-left: 3px solid transparent;
+      border-radius: 0;
+    }
+    
+    .nav-item:hover {
+      color: var(--amarelo);
+      border-left-color: var(--amarelo);
+      padding-left: 18px;
+    }
+    
+    .nav-item.active {
+      color: var(--amarelo);
+      border-left-color: var(--amarelo);
+      font-weight: 600;
+    }
+    
+    .sidebar-footer {
+      font-size: 11px;
+      color: var(--text-dim);
+      text-align: center;
+      line-height: 1.5;
+      border-top: 1px solid var(--border);
+      padding-top: 24px;
+    }
+    
+    /* MAIN */
+    .main { flex: 1; display: flex; flex-direction: column; }
+    
+    .header {
+      padding: 32px 48px;
+      border-bottom: 1px solid var(--border);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      background: rgba(26,31,46,0.5);
+      backdrop-filter: blur(10px);
+    }
+    
+    .header-content h1 {
+      font-size: 32px;
+      font-weight: 300;
+      letter-spacing: -1px;
+    }
+    
+    .btn-new {
+      background: linear-gradient(135deg, var(--amarelo), var(--lilas-suave));
+      color: #0A0E14;
+      border: none;
+      padding: 14px 32px;
+      border-radius: 12px;
+      font-size: 13px;
+      font-weight: 600;
+      font-family: 'Space Grotesk', sans-serif;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      letter-spacing: 0.5px;
+    }
+    
+    .btn-new:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 12px 32px rgba(246,231,168,0.2);
+    }
+    
+    /* CONTENT */
+    .content {
+      flex: 1;
+      padding: 48px;
+      overflow-y: auto;
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+      gap: 32px;
+      align-content: start;
+    }
+    
+    .card {
+      background: rgba(26,31,46,0.5);
+      backdrop-filter: blur(10px);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      padding: 32px;
+      transition: all 0.3s ease;
+      position: relative;
+      overflow: hidden;
+    }
+    
+    .card::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: 1px;
+      background: linear-gradient(90deg, transparent, var(--amarelo), transparent);
+      opacity: 0;
+      transition: opacity 0.3s ease;
+    }
+    
+    .card:hover {
+      background: rgba(26,31,46,0.8);
+      border-color: rgba(246,231,168,0.3);
+    }
+    
+    .card:hover::before {
+      opacity: 1;
+    }
+    
+    .card-label {
+      font-size: 11px;
+      letter-spacing: 1px;
+      color: var(--lilas-prof);
+      text-transform: uppercase;
+      margin-bottom: 12px;
+      font-weight: 600;
+    }
+    
+    .card-title {
+      font-size: 24px;
+      font-weight: 600;
+      margin-bottom: 8px;
+      letter-spacing: -0.5px;
+    }
+    
+    .card-value {
+      font-size: 32px;
+      font-weight: 700;
+      color: var(--amarelo);
+      margin: 16px 0;
+      letter-spacing: -1px;
+    }
+    
+    .card-desc {
+      font-size: 13px;
+      color: var(--text-dim);
+      line-height: 1.6;
+      margin-top: 16px;
+    }
+    
+    .score-ring {
+      width: 140px;
+      height: 140px;
+      margin: 0 auto 24px;
+      border-radius: 50%;
+      background: conic-gradient(var(--amarelo) 0deg 280deg, var(--lilas-suave) 280deg 360deg);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      box-shadow: 0 0 40px rgba(246,231,168,0.15);
+    }
+    
+    .score-inner {
+      width: 128px;
+      height: 128px;
+      background: var(--surface);
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 44px;
+      font-weight: 700;
+      color: var(--amarelo);
+    }
+    
+    .card-full {
+      grid-column: 1 / -1;
+    }
+    
+    .transaction-item {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 16px 0;
+      border-bottom: 1px solid var(--border);
+    }
+    
+    .transaction-item:last-child {
+      border-bottom: none;
+    }
+    
+    .transaction-left {
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+    }
+    
+    .transaction-cat {
+      font-size: 13px;
+      font-weight: 600;
+      color: var(--text-light);
+    }
+    
+    .transaction-date {
+      font-size: 12px;
+      color: var(--text-dim);
+    }
+    
+    .transaction-amount {
+      font-size: 14px;
+      font-weight: 600;
+    }
+    
+    .amount-receita {
+      color: #10B981;
+    }
+    
+    .amount-despesa {
+      color: #EF4444;
+    }
+    
+    /* MODAL */
+    .modal-overlay {
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: rgba(0,0,0,0.7);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      z-index: 1000;
+      backdrop-filter: blur(4px);
+    }
+    
+    .modal {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 20px;
+      padding: 48px;
+      max-width: 500px;
+      width: 90%;
+      max-height: 90vh;
+      overflow-y: auto;
+      box-shadow: 0 20px 60px rgba(0,0,0,0.4);
+    }
+    
+    .modal-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 32px;
+    }
+    
+    .modal-header h2 {
+      font-size: 20px;
+      font-weight: 600;
+      letter-spacing: -0.5px;
+    }
+    
+    .close-btn {
+      background: transparent;
+      border: none;
+      color: var(--text-dim);
+      cursor: pointer;
+      font-size: 24px;
+      transition: color 0.2s;
+    }
+    
+    .close-btn:hover {
+      color: var(--amarelo);
+    }
+    
+    .field {
+      margin-bottom: 24px;
+    }
+    
+    .field-label {
+      display: block;
+      font-size: 12px;
+      font-weight: 600;
+      color: var(--text-dim);
+      margin-bottom: 8px;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+    
+    .field input,
+    .field textarea {
+      width: 100%;
+      padding: 12px 16px;
+      background: rgba(10,14,20,0.5);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      color: var(--text-light);
+      font-family: 'Space Grotesk', sans-serif;
+      font-size: 14px;
+      transition: all 0.2s;
+    }
+    
+    .field input:focus,
+    .field textarea:focus {
+      outline: none;
+      border-color: var(--amarelo);
+      background: rgba(246,231,168,0.05);
+    }
+    
+    .tipo-toggle {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 12px;
+    }
+    
+    .tipo-toggle input {
+      display: none;
+    }
+    
+    .tipo-toggle label {
+      padding: 12px;
+      text-align: center;
+      background: rgba(246,231,168,0.08);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      cursor: pointer;
+      transition: all 0.2s;
+      font-size: 13px;
+      font-weight: 600;
+      color: var(--text-dim);
+      margin: 0;
+    }
+    
+    .tipo-toggle input:checked + label {
+      background: var(--lilas-prof);
+      border-color: var(--lilas-prof);
+      color: var(--off-white);
+    }
+    
+    .btn-submit {
+      width: 100%;
+      background: linear-gradient(135deg, var(--amarelo), var(--lilas-suave));
+      color: #0A0E14;
+      border: none;
+      padding: 14px;
+      border-radius: 12px;
+      font-size: 13px;
+      font-weight: 600;
+      font-family: 'Space Grotesk', sans-serif;
+      cursor: pointer;
+      margin-top: 24px;
+      transition: all 0.3s;
+      letter-spacing: 0.5px;
+    }
+    
+    .btn-submit:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 12px 32px rgba(246,231,168,0.2);
+    }
+    
+    @media (max-width: 1024px) {
+      .sidebar { width: 240px; padding: 32px 20px; gap: 32px; }
+      .content { padding: 32px; gap: 24px; }
+      .header { padding: 24px 32px; }
+    }
+    
+    @media (max-width: 768px) {
+      .app { flex-direction: column; }
+      .sidebar { width: 100%; padding: 20px; gap: 20px; border-right: none; border-bottom: 1px solid var(--border); }
+      .content { padding: 20px; grid-template-columns: 1fr; }
+      .header { padding: 20px; flex-direction: column; gap: 16px; align-items: flex-start; }
+    }
+  </style>
+</head>
+<body>
+  <div class="app">
+    <aside class="sidebar">
+      <div class="logo">⚡ Mordec</div>
+      <nav class="nav">
+        <div class="nav-item active" onclick="switchTab(event, 'overview')">Dashboard</div>
+        <div class="nav-item" onclick="switchTab(event, 'transactions')">Lançamentos</div>
+        <div class="nav-item" onclick="switchTab(event, 'insights')">Insights</div>
+        <div class="nav-item" onclick="switchTab(event, 'settings')">Configurações</div>
+      </nav>
+      <div class="sidebar-footer">
+        Mordec MVP v0.2<br>
+        Gestão Financeira Inteligente<br>
+        Equilibrio entre o real e o possível.
+      </div>
+    </aside>
+
+    <main class="main">
+      <header class="header">
+        <div class="header-content">
+          <h1 id="page-title">Dashboard</h1>
+        </div>
+        <button class="btn-new" onclick="openModal()">+ Novo Lançamento</button>
+      </header>
+
+      <div class="content" id="content">
+        <!-- Conteúdo dinâmico -->
+      </div>
+    </main>
+  </div>
+
+  <div id="modal-container" style="display:none;"></div>
+
+  <script>
+    const CATEGORIAS = ['Entrada', 'Pagamento', 'Nota', 'Insumos', 'Salário', 'Freelance', 'Outros'];
+    const SCORES = [
+      { min:0, max:20, label:'Crítico', desc:'Situação crítica. Ação urgente necessária.' },
+      { min:21, max:40, label:'Alerta', desc:'Você está no caminho, mas há risco detectado.' },
+      { min:41, max:60, label:'Estável', desc:'Base financeira sólida. Mantenha o bom trabalho.' },
+      { min:61, max:80, label:'Bom', desc:'Excelente gestão! Pronto para investimentos.' },
+      { min:81, max:100, label:'Crescimento', desc:'Base sólida. Momento ideal para expandir.' }
+    ];
+
+    let lancamentos = JSON.parse(localStorage.getItem('lancamentos')) || [];
+
+    function todayISO() {
+      return new Date().toISOString().split('T')[0];
+    }
+
+    function esc(str) {
+      const div = document.createElement('div');
+      div.textContent = str;
+      return div.innerHTML;
+    }
+
+    function calculateScore() {
+      if (lancamentos.length === 0) return 50;
+      const despesas = lancamentos.filter(l => l.tipo === 'despesa').reduce((a,b) => a + (parseFloat(b.valor)||0), 0);
+      const receitas = lancamentos.filter(l => l.tipo === 'receita').reduce((a,b) => a + (parseFloat(b.valor)||0), 0);
+      const saldo = receitas - despesas;
+      const ratio = receitas > 0 ? (saldo / receitas) * 100 : 0;
+      return Math.max(0, Math.min(100, 50 + ratio * 0.5));
+    }
+
+    function renderOverview() {
+      const score = calculateScore();
+      const scoreInfo = SCORES.find(s => score >= s.min && score <= s.max) || SCORES[2];
+      const despesas = lancamentos.filter(l => l.tipo === 'despesa').reduce((a,b) => a + (parseFloat(b.valor)||0), 0);
+      const receitas = lancamentos.filter(l => l.tipo === 'receita').reduce((a,b) => a + (parseFloat(b.valor)||0), 0);
+      const saldo = receitas - despesas;
+
+      document.getElementById('content').innerHTML = `
+        <div class="card card-full">
+          <div class="card-label">Saúde Financeira</div>
+          <div style="text-align:center;">
+            <div class="score-ring">
+              <div class="score-inner">${Math.round(score)}</div>
+            </div>
+            <div class="card-title">${scoreInfo.label}</div>
+            <div class="card-desc">${scoreInfo.desc}</div>
+          </div>
+        </div>
+
+        <div class="card">
+          <div class="card-label">Receitas</div>
+          <div class="card-value">R$ ${receitas.toFixed(2)}</div>
+          <div class="card-desc">Entrada total</div>
+        </div>
+
+        <div class="card">
+          <div class="card-label">Despesas</div>
+          <div class="card-value">R$ ${despesas.toFixed(2)}</div>
+          <div class="card-desc">Saída total</div>
+        </div>
+
+        <div class="card">
+          <div class="card-label">Saldo</div>
+          <div class="card-value" style="color:${saldo >= 0 ? '#10B981' : '#EF4444'};">
+            R$ ${saldo.toFixed(2)}
+          </div>
+          <div class="card-desc">${saldo >= 0 ? 'Você está no positivo' : 'Atenção: negativo'}</div>
+        </div>
+
+        <div class="card card-full">
+          <div class="card-label">Movimentação Recente</div>
+          <div class="card-title" style="margin-bottom:24px;">Últimas Transações</div>
+          <div style="display:flex; flex-direction:column;">
+            ${lancamentos.length === 0 ? '<div style="text-align:center; color:var(--text-dim); padding:32px;">Nenhum lançamento ainda</div>' : 
+              lancamentos.slice(-5).reverse().map(l => `
+                <div class="transaction-item">
+                  <div class="transaction-left">
+                    <div class="transaction-cat">${esc(l.categoria)}</div>
+                    <div class="transaction-date">${l.data}</div>
+                  </div>
+                  <div class="transaction-amount ${l.tipo === 'receita' ? 'amount-receita' : 'amount-despesa'}">
+                    ${l.tipo === 'receita' ? '+' : '-'} R$ ${parseFloat(l.valor).toFixed(2)}
+                  </div>
+                </div>
+              `).join('')}
+          </div>
+        </div>
+      `;
+    }
+
+    function renderTransactions() {
+      document.getElementById('content').innerHTML = `
+        <div class="card card-full">
+          <div class="card-label">Histórico</div>
+          <div class="card-title" style="margin-bottom:24px;">Todos os Lançamentos</div>
+          ${lancamentos.length === 0 ? '<div style="text-align:center; color:var(--text-dim); padding:40px;">Nenhum lançamento registrado</div>' : `
+            <div style="display:flex; flex-direction:column;">
+              ${lancamentos.slice().reverse().map(l => `
+                <div class="transaction-item">
+                  <div class="transaction-left">
+                    <div class="transaction-cat">${esc(l.categoria)}</div>
+                    <div class="transaction-date">${l.data}</div>
+                  </div>
+                  <div class="transaction-amount ${l.tipo === 'receita' ? 'amount-receita' : 'amount-despesa'}">
+                    ${l.tipo === 'receita' ? '+' : '-'} R$ ${parseFloat(l.valor).toFixed(2)}
+                  </div>
+                </div>
+              `).join('')}
+            </div>
+          `}
+        </div>
+      `;
+    }
+
+    function switchTab(event, tab) {
+      document.querySelectorAll('.nav-item').forEach(el => el.classList.remove('active'));
+      event.target.classList.add('active');
+      document.getElementById('page-title').textContent = 
+        tab === 'overview' ? 'Dashboard' : 
+        tab === 'transactions' ? 'Lançamentos' :
+        tab === 'insights' ? 'Insights' : 'Configurações';
+      
+      if (tab === 'overview') renderOverview();
+      else if (tab === 'transactions') renderTransactions();
+      else document.getElementById('content').innerHTML = '<div class="card card-full"><div class="card-title">Em desenvolvimento</div></div>';
+    }
+
+    function openModal() {
+      const container = document.getElementById('modal-container');
+      container.innerHTML = `
+        <div class="modal-overlay" onclick="closeModal()">
+          <div class="modal" onclick="event.stopPropagation()">
+            <div class="modal-header">
+              <h2>Novo Lançamento</h2>
+              <button class="close-btn" onclick="closeModal()">✕</button>
+            </div>
+            <form onsubmit="saveLancamento(event)">
+              <div class="field">
+                <label class="field-label">Data</label>
+                <input type="date" name="data" required value="${todayISO()}">
+              </div>
+              <div class="field">
+                <label class="field-label">Tipo</label>
+                <div class="tipo-toggle">
+                  <input type="radio" name="tipo" id="tipo-receita" value="receita" checked>
+                  <label for="tipo-receita">Receita</label>
+                  <input type="radio" name="tipo" id="tipo-despesa" value="despesa">
+                  <label for="tipo-despesa">Despesa</label>
+                </div>
+              </div>
+              <div class="field">
+                <label class="field-label">Categoria</label>
+                <input type="text" name="categoria" list="categorias" required placeholder="Ex: Salário...">
+                <datalist id="categorias">
+                  ${CATEGORIAS.map(c => `<option value="${c}">`).join('')}
+                </datalist>
+              </div>
+              <div class="field">
+                <label class="field-label">Valor (R$)</label>
+                <input type="number" name="valor" min="0" step="0.01" required placeholder="0,00">
+              </div>
+              <div class="field">
+                <label class="field-label">Descrição</label>
+                <textarea name="descricao" rows="2" placeholder="Detalhe (opcional)"></textarea>
+              </div>
+              <button type="submit" class="btn-submit">Salvar Lançamento</button>
+            </form>
+          </div>
+        </div>
+      `;
+      container.style.display = 'flex';
+    }
+
+    function closeModal() {
+      document.getElementById('modal-container').style.display = 'none';
+    }
+
+    function saveLancamento(e) {
+      e.preventDefault();
+      const form = e.target;
+      lancamentos.push({
+        data: form.data.value,
+        tipo: form.tipo.value,
+        categoria: form.categoria.value,
+        valor: form.valor.value,
+        descricao: form.descricao.value
+      });
+      localStorage.setItem('lancamentos', JSON.stringify(lancamentos));
+      closeModal();
+      renderOverview();
+    }
+
+    renderOverview();
+  </script>
+</body>
+</html>
