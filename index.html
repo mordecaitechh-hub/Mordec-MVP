@@ -1,0 +1,658 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Mordec - Gestão Financeira Inteligente</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    *{ margin:0; padding:0; box-sizing:border-box; }
+    html,body{ height:100%; width:100%; overflow:hidden; }
+    
+    :root{
+      --neon: #F6E7A8;
+      --electric: #F6E7A8;
+      --electric-dim: #E8D89A;
+      --paper: #0F1419;
+      --surface: #1A1F2E;
+      --surface-alt: #242A3A;
+      --text-primary: #E8EAED;
+      --text-secondary: #B0B4BA;
+      --ring-glow: rgba(246,231,168,.35);
+      --border-color: rgba(246,231,168,.15);
+      --accent-1: rgba(246,231,168,.08);
+      --accent-2: rgba(142,123,182,.16);
+    }
+    
+    ::selection{ background:rgba(246,231,168,.25); }
+    
+    body{
+      background:#0A0E14;
+      color:var(--text-primary);
+      font-family:'Space Grotesk',sans-serif;
+      line-height:1.5;
+    }
+    
+    .app-container{ display:flex; height:100vh; width:100%; }
+    
+    .sidebar{
+      width:280px;
+      background:var(--paper);
+      border-right:1px solid var(--border-color);
+      padding:24px;
+      display:flex;
+      flex-direction:column;
+      gap:32px;
+      overflow-y:auto;
+    }
+    
+    .brand-mark{
+      filter:drop-shadow(0 0 10px rgba(246,231,168,.45));
+      flex-shrink:0;
+      font-size:24px;
+      font-weight:700;
+      letter-spacing:-1px;
+    }
+    
+    .nav-menu{
+      display:flex;
+      flex-direction:column;
+      gap:8px;
+      flex:1;
+    }
+    
+    .nav-item{
+      padding:12px 16px;
+      border-radius:8px;
+      cursor:pointer;
+      transition:all 0.2s;
+      border:1px solid transparent;
+      font-size:14px;
+      color:var(--text-secondary);
+    }
+    
+    .nav-item:hover{
+      background:var(--accent-1);
+      color:var(--text-primary);
+    }
+    
+    .nav-item.active{
+      background:var(--accent-1);
+      color:var(--neon);
+      border-color:var(--neon);
+    }
+    
+    .main-content{
+      flex:1;
+      display:flex;
+      flex-direction:column;
+      background:#0F1419;
+      overflow:hidden;
+    }
+    
+    .header{
+      padding:24px 32px;
+      border-bottom:1px solid var(--border-color);
+      display:flex;
+      justify-content:space-between;
+      align-items:center;
+      background:var(--paper);
+    }
+    
+    .header-title{
+      font-size:28px;
+      font-weight:700;
+    }
+    
+    .btn-primary{
+      background:linear-gradient(135deg,var(--electric),var(--electric-dim));
+      color:#0A0E14;
+      border:none;
+      padding:12px 24px;
+      border-radius:8px;
+      font-weight:600;
+      cursor:pointer;
+      transition:all 0.2s;
+      box-shadow:0 2px 0 rgba(0,0,0,.2), 0 8px 24px rgba(142,123,182,.28);
+      font-family:'Space Grotesk',sans-serif;
+    }
+    
+    .btn-primary:hover{
+      box-shadow:0 2px 0 rgba(0,0,0,.2), 0 10px 28px rgba(142,123,182,.4);
+      transform:translateY(-2px);
+    }
+    
+    .content-area{
+      flex:1;
+      padding:32px;
+      overflow-y:auto;
+      display:grid;
+      grid-template-columns:repeat(auto-fit,minmax(300px,1fr));
+      gap:24px;
+    }
+    
+    .card{
+      background:var(--surface);
+      border:1px solid var(--border-color);
+      border-radius:12px;
+      padding:24px;
+      transition:all 0.3s;
+    }
+    
+    .card:hover{
+      background:var(--surface-alt);
+      border-color:var(--neon);
+      box-shadow:0 0 20px rgba(246,231,168,.1);
+    }
+    
+    .score-ring{
+      width:186px;
+      height:186px;
+      border-radius:50%;
+      display:grid;
+      place-items:center;
+      position:relative;
+      box-shadow:0 0 40px -8px var(--ring-glow);
+      background:conic-gradient(var(--neon) 0deg 250deg, var(--surface-alt) 250deg 360deg);
+      margin:0 auto 20px;
+    }
+    
+    .score-value{
+      position:absolute;
+      width:170px;
+      height:170px;
+      border-radius:50%;
+      background:var(--surface);
+      display:grid;
+      place-items:center;
+      font-size:48px;
+      font-weight:700;
+      color:var(--neon);
+    }
+    
+    .estimate-badge{
+      display:inline-flex;
+      align-items:center;
+      gap:6px;
+      font-size:11px;
+      font-weight:600;
+      color:var(--neon);
+      background:var(--accent-1);
+      border:1px solid rgba(246,231,168,.3);
+      padding:3px 9px;
+      border-radius:20px;
+      margin-bottom:10px;
+    }
+    
+    .card-title{
+      font-size:16px;
+      font-weight:700;
+      margin-bottom:8px;
+      color:var(--text-primary);
+    }
+    
+    .card-desc{
+      font-size:13px;
+      color:var(--text-secondary);
+      margin-bottom:16px;
+      line-height:1.6;
+    }
+    
+    .chart-row{
+      display:flex;
+      align-items:center;
+      gap:12px;
+      padding:8px 0;
+    }
+    
+    .chart-label{
+      font-size:12px;
+      color:var(--text-secondary);
+      width:80px;
+    }
+    
+    .chart-bar{
+      flex:1;
+      height:24px;
+      background:var(--accent-1);
+      border-radius:4px;
+      position:relative;
+      overflow:hidden;
+    }
+    
+    .chart-fill{
+      height:100%;
+      background:linear-gradient(90deg,var(--electric),var(--electric-dim));
+      border-radius:4px;
+      transition:width 0.3s;
+    }
+    
+    .modal-overlay{
+      position:fixed;
+      top:0;
+      left:0;
+      right:0;
+      bottom:0;
+      background:rgba(0,0,0,.7);
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      z-index:1000;
+    }
+    
+    .modal{
+      background:var(--surface);
+      border:1px solid var(--border-color);
+      border-radius:16px;
+      padding:32px;
+      max-width:500px;
+      width:90%;
+      max-height:90vh;
+      overflow-y:auto;
+    }
+    
+    .modal-head{
+      display:flex;
+      justify-content:space-between;
+      align-items:center;
+      margin-bottom:24px;
+    }
+    
+    .modal-head h2{
+      font-size:20px;
+      font-weight:700;
+    }
+    
+    .icon-btn{
+      background:transparent;
+      border:none;
+      color:var(--text-secondary);
+      cursor:pointer;
+      font-size:24px;
+      transition:color 0.2s;
+    }
+    
+    .icon-btn:hover{
+      color:var(--neon);
+    }
+    
+    .field{
+      margin-bottom:16px;
+    }
+    
+    .field label{
+      display:block;
+      font-size:12px;
+      font-weight:600;
+      color:var(--text-secondary);
+      margin-bottom:6px;
+      text-transform:uppercase;
+      letter-spacing:0.5px;
+    }
+    
+    .field input,
+    .field textarea{
+      width:100%;
+      padding:12px;
+      background:var(--surface-alt);
+      border:1px solid var(--border-color);
+      border-radius:8px;
+      color:var(--text-primary);
+      font-family:'Space Grotesk',sans-serif;
+      font-size:14px;
+      transition:border-color 0.2s;
+    }
+    
+    .field input:focus,
+    .field textarea:focus{
+      outline:none;
+      border-color:var(--neon);
+    }
+    
+    .prefix-wrap{
+      display:flex;
+      align-items:center;
+      gap:8px;
+    }
+    
+    .prefix-wrap span{
+      color:var(--text-secondary);
+      font-weight:600;
+    }
+    
+    .prefix-wrap input{
+      flex:1;
+    }
+    
+    .tipo-toggle{
+      display:grid;
+      grid-template-columns:1fr 1fr;
+      gap:8px;
+    }
+    
+    .tipo-toggle input{
+      display:none;
+    }
+    
+    .tipo-toggle label{
+      padding:10px;
+      text-align:center;
+      background:var(--accent-1);
+      border:1px solid var(--border-color);
+      border-radius:8px;
+      cursor:pointer;
+      transition:all 0.2s;
+      font-size:13px;
+      margin:0;
+    }
+    
+    .tipo-toggle input:checked+label{
+      background:var(--accent-2);
+      border-color:var(--neon);
+      color:var(--neon);
+    }
+    
+    .segmented{
+      display:grid;
+      grid-template-columns:repeat(3,1fr);
+      gap:8px;
+      margin-bottom:16px;
+    }
+    
+    .segmented button{
+      padding:10px;
+      background:transparent;
+      border:1px solid var(--border-color);
+      border-radius:8px;
+      color:var(--text-secondary);
+      cursor:pointer;
+      transition:all 0.2s;
+      font-size:12px;
+      font-weight:600;
+    }
+    
+    .segmented button.active{
+      background:var(--accent-2);
+      color:var(--paper);
+    }
+    
+    .transactions-list{
+      display:flex;
+      flex-direction:column;
+      gap:12px;
+    }
+    
+    .transaction-item{
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      padding:12px;
+      background:var(--surface-alt);
+      border-radius:8px;
+      border:1px solid var(--border-color);
+    }
+    
+    .transaction-info{
+      display:flex;
+      flex-direction:column;
+      gap:4px;
+      flex:1;
+    }
+    
+    .transaction-category{
+      font-size:13px;
+      font-weight:600;
+      color:var(--text-primary);
+    }
+    
+    .transaction-desc{
+      font-size:11px;
+      color:var(--text-secondary);
+    }
+    
+    .transaction-amount{
+      font-size:14px;
+      font-weight:700;
+      text-align:right;
+    }
+    
+    .amount-receita{
+      color:#10B981;
+    }
+    
+    .amount-despesa{
+      color:#EF4444;
+    }
+    
+    @media(max-width:768px){
+      .sidebar{ width:100%; height:auto; border-right:none; border-bottom:1px solid var(--border-color); padding:16px; gap:16px; }
+      .app-container{ flex-direction:column; }
+      .content-area{ padding:16px; }
+      .header{ padding:16px; }
+    }
+  </style>
+</head>
+<body>
+  <div class="app-container">
+    <div class="sidebar">
+      <div class="brand-mark">⚡ Mordec</div>
+      <nav class="nav-menu">
+        <div class="nav-item active" onclick="switchTab('overview')">Dashboard</div>
+        <div class="nav-item" onclick="switchTab('transactions')">Lançamentos</div>
+        <div class="nav-item" onclick="switchTab('health')">Saúde Financeira</div>
+        <div class="nav-item" onclick="switchTab('planning')">Planejamento</div>
+      </nav>
+      <div style="font-size:11px; color:var(--text-secondary); text-align:center;">
+        Mordec MVP v0.1 | Gestão Financeira
+      </div>
+    </div>
+    
+    <div class="main-content">
+      <div class="header">
+        <div class="header-title">Dashboard</div>
+        <button class="btn-primary" onclick="openModal()">+ Novo Lançamento</button>
+      </div>
+      
+      <div class="content-area" id="content">
+        <!-- Conteúdo dinâmico vai aqui -->
+      </div>
+    </div>
+  </div>
+  
+  <!-- Modal -->
+  <div id="modal" style="display:none;">
+    <!-- Modal vai aqui -->
+  </div>
+
+  <script>
+    const CATEGORIAS_SUGERIDAS = ['Entrada', 'Pagamento', 'Nota', 'Insumos', 'Salário', 'Freelance', 'Outros'];
+    const SCORES = [
+      { min:0, max:20, label:'Precisa de Ação Urgente', color:'#EF4444', desc:'Situação crítica. É hora de tomar medidas drásticas para equilibrar as finanças.' },
+      { min:21, max:40, label:'Alerta', color:'#F59E0B', desc:'Você está no caminho certo, mas há risco. Monitore de perto.' },
+      { min:41, max:60, label:'Estável', color:'#F6E7A8', desc:'Sua base financeira é sólida. Mantenha o bom trabalho.' },
+      { min:61, max:80, label:'Bom', color:'#8B7BA8', desc:'Excelente gestão! Você pode começar a pensar em investimentos.' },
+      { min:81, max:100, label:'Pronta para crescer', color:'#F6E7A8', desc:'A base financeira está sólida. Esse é o momento ideal para acelerar investimentos e expansão.' }
+    ];
+    
+    let lancamentos = JSON.parse(localStorage.getItem('lancamentos')) || [];
+    let currentView = 'overview';
+    
+    function todayISO(){
+      const now = new Date();
+      return now.toISOString().split('T')[0];
+    }
+    
+    function esc(str){
+      const div = document.createElement('div');
+      div.textContent = str;
+      return div.innerHTML;
+    }
+    
+    function calculateScore(){
+      if(lancamentos.length === 0) return 50;
+      const despesas = lancamentos.filter(l => l.tipo === 'despesa').reduce((a,b) => a + (parseFloat(b.valor)||0), 0);
+      const receitas = lancamentos.filter(l => l.tipo === 'receita').reduce((a,b) => a + (parseFloat(b.valor)||0), 0);
+      const saldo = receitas - despesas;
+      const ratio = receitas > 0 ? (saldo / receitas) * 100 : 0;
+      return Math.max(0, Math.min(100, 50 + ratio));
+    }
+    
+    function renderOverview(){
+      const score = calculateScore();
+      const scoreInfo = SCORES.find(s => score >= s.min && score <= s.max) || SCORES[2];
+      const despesas = lancamentos.filter(l => l.tipo === 'despesa').reduce((a,b) => a + (parseFloat(b.valor)||0), 0);
+      const receitas = lancamentos.filter(l => l.tipo === 'receita').reduce((a,b) => a + (parseFloat(b.valor)||0), 0);
+      const saldo = receitas - despesas;
+      
+      document.getElementById('content').innerHTML = `
+        <div class="card" style="grid-column:1/-1;">
+          <div class="estimate-badge">📊 Saúde Financeira</div>
+          <div class="score-ring">
+            <div class="score-value">${Math.round(score)}</div>
+          </div>
+          <div style="text-align:center;">
+            <div class="card-title">${scoreInfo.label}</div>
+            <div class="card-desc">${scoreInfo.desc}</div>
+          </div>
+        </div>
+        
+        <div class="card">
+          <div class="card-title">Receitas</div>
+          <div style="font-size:28px; color:#10B981; font-weight:700;">R$ ${receitas.toFixed(2)}</div>
+        </div>
+        
+        <div class="card">
+          <div class="card-title">Despesas</div>
+          <div style="font-size:28px; color:#EF4444; font-weight:700;">R$ ${despesas.toFixed(2)}</div>
+        </div>
+        
+        <div class="card">
+          <div class="card-title">Saldo</div>
+          <div style="font-size:28px; color:${saldo >= 0 ? '#10B981' : '#EF4444'}; font-weight:700;">R$ ${saldo.toFixed(2)}</div>
+        </div>
+        
+        <div class="card" style="grid-column:1/-1;">
+          <div class="card-title">Últimas Transações</div>
+          <div class="transactions-list">
+            ${lancamentos.slice(-5).reverse().map((l,i) => `
+              <div class="transaction-item">
+                <div class="transaction-info">
+                  <div class="transaction-category">${esc(l.categoria)}</div>
+                  <div class="transaction-desc">${esc(l.descricao)}</div>
+                </div>
+                <div class="transaction-amount ${l.tipo === 'receita' ? 'amount-receita' : 'amount-despesa'}">
+                  ${l.tipo === 'receita' ? '+' : '-'} R$ ${parseFloat(l.valor).toFixed(2)}
+                </div>
+              </div>
+            `).join('')}
+          </div>
+        </div>
+      `;
+    }
+    
+    function renderTransactions(){
+      document.getElementById('content').innerHTML = `
+        <div class="card" style="grid-column:1/-1;">
+          <div class="card-title">Todos os Lançamentos</div>
+          <div class="transactions-list">
+            ${lancamentos.length === 0 ? '<div style="color:var(--text-secondary); text-align:center; padding:40px;">Nenhum lançamento ainda</div>' : lancamentos.slice().reverse().map(l => `
+              <div class="transaction-item">
+                <div class="transaction-info">
+                  <div class="transaction-category">${esc(l.categoria)}</div>
+                  <div class="transaction-desc">${l.data} • ${esc(l.descricao)}</div>
+                </div>
+                <div class="transaction-amount ${l.tipo === 'receita' ? 'amount-receita' : 'amount-despesa'}">
+                  ${l.tipo === 'receita' ? '+' : '-'} R$ ${parseFloat(l.valor).toFixed(2)}
+                </div>
+              </div>
+            `).join('')}
+          </div>
+        </div>
+      `;
+    }
+    
+    function switchTab(tab){
+      currentView = tab;
+      document.querySelectorAll('.nav-item').forEach((el,i) => el.classList.remove('active'));
+      event.target.classList.add('active');
+      
+      if(tab === 'overview') renderOverview();
+      else if(tab === 'transactions') renderTransactions();
+    }
+    
+    function openModal(){
+      const root = document.getElementById('modal');
+      root.innerHTML = `
+        <div class="modal-overlay" data-action="close-modal-overlay">
+          <div class="modal" role="dialog">
+            <div class="modal-head">
+              <h2>Novo Lançamento</h2>
+              <button class="icon-btn" onclick="closeModal()">✕</button>
+            </div>
+            <form onsubmit="saveLancamento(event)">
+              <div class="field">
+                <label>Data</label>
+                <input type="date" name="data" required value="${todayISO()}">
+              </div>
+              <div class="field">
+                <label>Tipo</label>
+                <div class="tipo-toggle">
+                  <input type="radio" name="tipo" id="tipo-receita" value="receita" checked>
+                  <label for="tipo-receita">Receita</label>
+                  <input type="radio" name="tipo" id="tipo-despesa" value="despesa">
+                  <label for="tipo-despesa">Despesa</label>
+                </div>
+              </div>
+              <div class="field">
+                <label>Categoria</label>
+                <input type="text" name="categoria" list="categorias-lista" placeholder="Ex.: Salário, Pagamento..." required>
+                <datalist id="categorias-lista">
+                  ${CATEGORIAS_SUGERIDAS.map(c => `<option value="${c}">`).join('')}
+                </datalist>
+              </div>
+              <div class="field">
+                <label>Valor (R$)</label>
+                <div class="prefix-wrap">
+                  <span>R$</span>
+                  <input type="number" name="valor" min="0" step="0.01" required placeholder="0,00">
+                </div>
+              </div>
+              <div class="field">
+                <label>Descrição (opcional)</label>
+                <textarea name="descricao" placeholder="Detalhe rápido" rows="2"></textarea>
+              </div>
+              <button type="submit" class="btn-primary" style="width:100%; margin-top:16px;">Salvar Lançamento</button>
+            </form>
+          </div>
+        </div>
+      `;
+      root.style.display = 'block';
+      root.querySelector('[data-action="close-modal-overlay"]').onclick = closeModal;
+    }
+    
+    function closeModal(){
+      document.getElementById('modal').style.display = 'none';
+    }
+    
+    function saveLancamento(e){
+      e.preventDefault();
+      const form = e.target;
+      const lancamento = {
+        data: form.data.value,
+        tipo: form.tipo.value,
+        categoria: form.categoria.value,
+        valor: form.valor.value,
+        descricao: form.descricao.value
+      };
+      lancamentos.push(lancamento);
+      localStorage.setItem('lancamentos', JSON.stringify(lancamentos));
+      closeModal();
+      renderOverview();
+    }
+    
+    renderOverview();
+  </script>
+</body>
+</html>
